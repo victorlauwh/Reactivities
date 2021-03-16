@@ -38,6 +38,7 @@ export default class ProfileStore {
       console.log(error);
     }
   };
+
   @action uploadPhoto = async (file: Blob) => {
     this.uploadingPhoto = true;
     try {
@@ -95,6 +96,22 @@ export default class ProfileStore {
       runInAction(() => {
         this.loading = false;
       });
+    }
+  };
+
+  @action updateProfile = async (profile: Partial<IProfile>) => {
+    try {
+      await agent.Profiles.updateProfile(profile);
+      runInAction(() => {
+        if (
+          profile.displayName !== this.rootStore.userStore.user!.displayName
+        ) {
+          this.rootStore.userStore.user!.displayName = profile.displayName!;
+        }
+        this.profile = { ...this.profile!, ...profile };
+      });
+    } catch (error) {
+      toast.error('Problem updating profile');
     }
   };
 }
